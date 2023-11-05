@@ -84,7 +84,15 @@ public class community extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_community);
+        getFriendData("http://enejd0613.dothome.co.kr/FriendList.php");
+        getData("http://enejd0613.dothome.co.kr/filedownload.php");
         // 마이페이지
+        // 게시글
+        list = (ListView) findViewById(R.id.community);
+        communityAdapter = new communityAdapter(this,Communitylist);
+
+        list.setAdapter(communityAdapter);
+
         Button mypage_btn = (Button) findViewById(R.id.mypage_btn);
         mypage_btn.setOnClickListener(new View.OnClickListener() {
 
@@ -104,6 +112,7 @@ public class community extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), community_post.class);
                 intent.putExtra("RoutineNameText", "");
                 startActivity(intent);
+                finish();
             }
         });
 
@@ -160,14 +169,6 @@ public class community extends AppCompatActivity {
             }
         });
 
-        // 게시글
-        list = (ListView) findViewById(R.id.community);
-        communityAdapter = new communityAdapter(this,Communitylist);
-
-        list.setAdapter(communityAdapter);
-
-        getFriendData("http://enejd0613.dothome.co.kr/FriendList.php");
-        getData("http://enejd0613.dothome.co.kr/filedownload.php");
     }
     // 로그인한 유저의 친구리스트를 얻기위한 코드
     protected void FriendList() {
@@ -234,7 +235,6 @@ public class community extends AppCompatActivity {
     }
     // 로그인한 유저의 커뮤티니 목록(본인, 친구)
     protected void showList() {
-        communityAdapter.notifyDataSetChanged();
         try {
             if (myJSON != null && !myJSON.isEmpty()) {
                 JSONObject jsonObj = new JSONObject(myJSON);
@@ -268,10 +268,12 @@ public class community extends AppCompatActivity {
                         String userProfile = c.getString(TAG_UserProfile); // 추가된 부분
                         String rutineName = c.getString(TAG_rutineName);
                         User user = new User(Integer.parseInt(postId),id,content,image,date,userProfile,rutineName);
+                        System.out.println(Communitylist.size());
                         Communitylist.add(user);
                     }
                 }
             }
+            communityAdapter.notifyDataSetChanged();
         } catch (JSONException e) {
             e.printStackTrace();
         }

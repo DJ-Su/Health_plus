@@ -1,12 +1,18 @@
 package com.example.djsu;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -26,6 +32,7 @@ import com.android.volley.Response;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.djsu.admin.adminUser;
+import com.google.android.material.navigation.NavigationView;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -44,6 +51,9 @@ import java.util.List;
 import java.util.Map;
 
 public class battle extends AppCompatActivity {
+    private Toolbar toolbar;
+    private NavigationView navigationView;
+    private DrawerLayout drawerLayout;
     Dialog customDialog; // 커스텀 다이얼로그
     String myJSON;
     private static final String TAG_RESULTS = "result";
@@ -100,7 +110,7 @@ public class battle extends AppCompatActivity {
         getFoodData("http://enejd0613.dothome.co.kr/foodcalendarlist.php");
         battleAdapter =  new battleAdapter(battle.this, UserNameList);
         timebattleAdapter = new timeBattleAdapter(battle.this, UserNameList);
-        weightbattleAdapter = new weightBattleAdapter(battle.this, battleList);
+        weightbattleAdapter = new weightBattleAdapter(battle.this, UserNameList);
 
         cal_chartlist = (ListView) findViewById(R.id.cal_chart);
         time_chart = (ListView) findViewById(R.id.time_chart);
@@ -113,6 +123,50 @@ public class battle extends AppCompatActivity {
         battleAdapter.notifyDataSetChanged();
         timebattleAdapter.notifyDataSetChanged();
         weightbattleAdapter.notifyDataSetChanged();
+
+        // 햄버거
+        toolbar = findViewById(R.id.toolBar);
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        //뒤로가기버튼 이미지 적용
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_action_hamburger);
+        navigationView = findViewById(R.id.navigationView);
+        drawerLayout = findViewById(R.id.drawerLayout);
+
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                switch(menuItem.getItemId()){
+                    case R.id.home:
+                        Intent homeintent = new Intent(getApplicationContext(), main_user.class);
+                        startActivity(homeintent);
+                        return true;
+                    case R.id.calender:
+                        Intent calenderintent = new Intent(getApplicationContext(), CalendarActivity.class);
+                        startActivity(calenderintent);
+                        return true;
+                    case R.id.communety:
+                        Intent communetyintent = new Intent(getApplicationContext(), community.class);
+                        startActivity(communetyintent);
+                        return true;
+                    case R.id.mypage:
+                        Intent mypageintent = new Intent(getApplicationContext(), mypage.class);
+                        startActivity(mypageintent);
+                        return true;
+                    case R.id.annoucement:
+                        Intent annoucementintent = new Intent(getApplicationContext(), annoucement.class);
+                        startActivity(annoucementintent);
+                        return true;
+                    case R.id.friend:
+                        Intent friend = new Intent(getApplicationContext(), chatList.class);
+                        startActivity(friend);
+                        return true;
+                }
+                return false;
+            }
+        });
+
     }
 
     // dialog01을 디자인하는 함수
@@ -280,7 +334,10 @@ public class battle extends AppCompatActivity {
 
 // 어떤 활동을 수행할 때 진행률을 업데이트하려면 아래와 같이 호출
 // 예를 들어, 진행률을 ExKcalNum로 업데이트하려면
-            int currentProgress = (int)battleExList.get(position).getKcal();
+            int currentProgress = 0;
+            if(battleExList.size() != 0 ){
+                currentProgress = (int)battleExList.get(position).getKcal();
+            }
             progressBar.setProgress(currentProgress);
 
             if(exMax < currentProgress){
@@ -336,8 +393,11 @@ public class battle extends AppCompatActivity {
 
 // 어떤 활동을 수행할 때 진행률을 업데이트하려면 아래와 같이 호출
 // 예를 들어, 진행률을 ExKcalNum로 업데이트하려면
-            int currentProgress = FoodKcalList.get(position).getFoodKcal();
-            progressBar.setProgress(currentProgress);
+            int currentProgress = 0;
+            if(FoodKcalList.size() != 0) {
+                currentProgress = (int) FoodKcalList.get(position).getFoodKcal();
+                progressBar.setProgress(currentProgress);
+            }
 
             if(foodMax < currentProgress){
                 foodMax = currentProgress;
@@ -358,9 +418,9 @@ public class battle extends AppCompatActivity {
 
     public class weightBattleAdapter extends BaseAdapter {
         private Context context;
-        private ArrayList<User> battleList1;
+        private ArrayList<String> battleList1;
 
-        public weightBattleAdapter(Context context, ArrayList<User> battleList) {
+        public weightBattleAdapter(Context context, ArrayList<String> battleList) {
             this.context = context;
             this.battleList1 = battleList;
         }
@@ -377,7 +437,7 @@ public class battle extends AppCompatActivity {
         public long getItemId (int position){
             return position;
         }
-        public void setItems(ArrayList<User> list) {
+        public void setItems(ArrayList<String> list) {
             battleList1 = list;
             notifyDataSetChanged();
         }
@@ -387,6 +447,7 @@ public class battle extends AppCompatActivity {
             View v = View.inflate(context, R.layout.item_prog, null);
             TextView burkcal_username = v.findViewById(R.id.burkcal_username);
             burkcal_username.setText(UserNameList.get(position));
+
             int a = 0;
             a = Integer.parseInt(battleList.get(position).getSettingWeight()) - Integer.parseInt(battleWeightList.get(position).getWeight());
 // 프로그래스바와 TextView 초기화
@@ -693,6 +754,18 @@ public class battle extends AppCompatActivity {
         }
         GetDataJSON g = new GetDataJSON();
         g.execute(url);
+    }
+    // 햄버거
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+        switch(item.getItemId()){
+            case android.R.id.home:
+                drawerLayout.openDrawer(GravityCompat.START);
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
     private String getTime() {
         long now = System.currentTimeMillis();

@@ -111,8 +111,10 @@ public class community_post extends AppCompatActivity {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(rutineName.equals("")){
+                    routine_text.setText("");
+                }
                 uploaddatatodb();
-                finish();
             }
         });
 
@@ -170,6 +172,9 @@ public class community_post extends AppCompatActivity {
                 // t1.setText("");
                 content.setText("");               img.setImageResource(R.drawable.ic_launcher_foreground);
                 Toast.makeText(getApplicationContext(),response.toString(),Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(getApplicationContext(), community.class);
+                startActivity(intent);
+                finish();
             }
         }, new Response.ErrorListener() {
             @Override

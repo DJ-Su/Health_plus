@@ -57,7 +57,7 @@ public class commentAdapter extends BaseAdapter {
         View v = View.inflate(context, R.layout.item_comment, null);
         Date = getTime();
         userName = v.findViewById(R.id.userName);
-        userName.setText(user.getId());
+        userName.setText(commentList.get(position).getCommentUser());
 
         userComment = v.findViewById(R.id.userComment);
         userComment.setText(commentList.get(position).getCommentContent());
